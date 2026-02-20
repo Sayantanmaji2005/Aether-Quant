@@ -263,6 +263,17 @@ pre{
   font-size:16px;
   margin:8px 0 0;
 }
+.hint-box{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px dashed #7fa9d9;
+  background:#e8f2ff;
+  color:#0d2f57;
+  font-size:13px;
+  font-family:Consolas,"Courier New",monospace;
+  overflow-wrap:anywhere;
+}
 @media (max-width: 760px){
   h1{font-size:38px}
   h3{font-size:28px}
@@ -295,8 +306,10 @@ pre{
 <div class='row'>
 <input id='api_key' placeholder='X-API-Key (optional)' style='min-width:260px'/>
 <button type='button' class='btn-soft' onclick='clearApiKey()'>Clear Key</button>
+<button type='button' class='btn-soft' onclick='useHintKey()'>Use Hint Key</button>
 </div>
 <p class='subtitle'>Use the trader/admin API key shared by your deployment owner.</p>
+<div class='hint-box' id='hint_key_box'>Hint key: F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56</div>
 </div>
 <div class='card'>
 <h3>Backtest</h3>
@@ -474,6 +487,11 @@ function bindPersist(inputEl, key){
 function clearApiKey(){
   apiKeyInput.value = '';
   removeStorage(STORAGE_KEYS.apiKey);
+}
+function useHintKey(){
+  const hint = 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56';
+  apiKeyInput.value = hint;
+  writeStorage(STORAGE_KEYS.apiKey, hint);
 }
 function resetBacktestDefaults(){
   bSymbolInput.value = 'SPY';

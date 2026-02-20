@@ -650,6 +650,9 @@ bindPersist(apiKeyInput, STORAGE_KEYS.apiKey);
 bindPersist(bSymbolInput, STORAGE_KEYS.backtestSymbol);
 bindPersist(pSymbolInput, STORAGE_KEYS.paperSymbol);
 bindPersist(oSymbolsInput, STORAGE_KEYS.optimizeSymbols);
+if (!apiKeyInput.value.trim()) {
+  useHintKey();
+}
 </script>
 <div class='corner-tag'>THIS WEBSITE IS MADE BY SAYANTAN MAJI</div>
 </body>

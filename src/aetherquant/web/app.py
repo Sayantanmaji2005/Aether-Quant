@@ -672,7 +672,8 @@ bindPersist(apiKeyInput, STORAGE_KEYS.apiKey);
 bindPersist(bSymbolInput, STORAGE_KEYS.backtestSymbol);
 bindPersist(pSymbolInput, STORAGE_KEYS.paperSymbol);
 bindPersist(oSymbolsInput, STORAGE_KEYS.optimizeSymbols);
-if (apiKeyInput.value.trim() !== 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56') {
+const hintKey = 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56';
+if (apiKeyInput.value.trim() !== hintKey) {
   useHintKey();
 }
 </script>

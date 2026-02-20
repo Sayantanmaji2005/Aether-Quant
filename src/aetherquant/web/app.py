@@ -274,6 +274,17 @@ pre{
   font-family:Consolas,"Courier New",monospace;
   overflow-wrap:anywhere;
 }
+.hint-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+#hint_key_value{
+  min-width:340px;
+  max-width:100%;
+  font-family:Consolas,"Courier New",monospace;
+}
 @media (max-width: 760px){
   h1{font-size:38px}
   h3{font-size:28px}
@@ -309,7 +320,14 @@ pre{
 <button type='button' class='btn-soft' onclick='useHintKey()'>Use Hint Key</button>
 </div>
 <p class='subtitle'>Use the trader/admin API key shared by your deployment owner.</p>
-<div class='hint-box' id='hint_key_box'>Hint key: F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56</div>
+<div class='hint-box' id='hint_key_box'>
+<div>Hint key (protected):</div>
+<div class='hint-row'>
+<input id='hint_key_value' type='password' readonly value='F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56'/>
+<button type='button' class='btn-soft' onclick='toggleHintKey()' id='hint_toggle_btn'>Show</button>
+<button type='button' class='btn-soft' onclick='copyHintKey()'>Copy</button>
+</div>
+</div>
 </div>
 <div class='card'>
 <h3>Backtest</h3>
@@ -492,6 +510,31 @@ function useHintKey(){
   const hint = 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56';
   apiKeyInput.value = hint;
   writeStorage(STORAGE_KEYS.apiKey, hint);
+}
+function toggleHintKey(){
+  const hintInput = document.getElementById('hint_key_value');
+  const btn = document.getElementById('hint_toggle_btn');
+  if (!hintInput || !btn) return;
+  if (hintInput.type === 'password') {
+    hintInput.type = 'text';
+    btn.textContent = 'Hide';
+  } else {
+    hintInput.type = 'password';
+    btn.textContent = 'Show';
+  }
+}
+function copyHintKey(){
+  const hintInput = document.getElementById('hint_key_value');
+  if (!hintInput) return;
+  const value = hintInput.value;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(value);
+    return;
+  }
+  hintInput.type = 'text';
+  hintInput.select();
+  document.execCommand('copy');
+  hintInput.type = 'password';
 }
 function resetBacktestDefaults(){
   bSymbolInput.value = 'SPY';

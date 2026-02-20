@@ -263,28 +263,6 @@ pre{
   font-size:16px;
   margin:8px 0 0;
 }
-.hint-box{
-  margin-top:10px;
-  padding:10px 12px;
-  border-radius:10px;
-  border:1px dashed #7fa9d9;
-  background:#e8f2ff;
-  color:#0d2f57;
-  font-size:13px;
-  font-family:Consolas,"Courier New",monospace;
-  overflow-wrap:anywhere;
-}
-.hint-row{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-#hint_key_value{
-  min-width:340px;
-  max-width:100%;
-  font-family:Consolas,"Courier New",monospace;
-}
 .corner-tag{
   position:fixed;
   right:12px;
@@ -336,18 +314,8 @@ pre{
 <div class='row'>
 <input id='api_key' placeholder='X-API-Key (optional)' style='min-width:260px'/>
 <button type='button' class='btn-soft' onclick='clearApiKey()'>Clear Key</button>
-<button type='button' class='btn-soft' onclick='useHintKey()'>Use Hint Key</button>
 </div>
 <p class='subtitle'>Use the trader/admin API key shared by your deployment owner.</p>
-<div class='hint-box' id='hint_key_box'>
-<div>Hint key (protected):</div>
-<div class='hint-row'>
-<input id='hint_key_value' type='password' readonly
-value='F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56'/>
-<button type='button' class='btn-soft' onclick='toggleHintKey()' id='hint_toggle_btn'>Show</button>
-<button type='button' class='btn-soft' onclick='copyHintKey()'>Copy</button>
-</div>
-</div>
 </div>
 <div class='card'>
 <h3>Backtest</h3>
@@ -526,11 +494,6 @@ function clearApiKey(){
   apiKeyInput.value = '';
   removeStorage(STORAGE_KEYS.apiKey);
 }
-function useHintKey(){
-  const hint = 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56';
-  apiKeyInput.value = hint;
-  writeStorage(STORAGE_KEYS.apiKey, hint);
-}
 function currentApiKey(){
   return apiKeyInput.value.trim();
 }
@@ -541,31 +504,6 @@ function requestHeaders(apiKey){
     headers['Authorization'] = `Bearer ${apiKey}`;
   }
   return headers;
-}
-function toggleHintKey(){
-  const hintInput = document.getElementById('hint_key_value');
-  const btn = document.getElementById('hint_toggle_btn');
-  if (!hintInput || !btn) return;
-  if (hintInput.type === 'password') {
-    hintInput.type = 'text';
-    btn.textContent = 'Hide';
-  } else {
-    hintInput.type = 'password';
-    btn.textContent = 'Show';
-  }
-}
-function copyHintKey(){
-  const hintInput = document.getElementById('hint_key_value');
-  if (!hintInput) return;
-  const value = hintInput.value;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(value);
-    return;
-  }
-  hintInput.type = 'text';
-  hintInput.select();
-  document.execCommand('copy');
-  hintInput.type = 'password';
 }
 function resetBacktestDefaults(){
   bSymbolInput.value = 'SPY';
@@ -608,23 +546,12 @@ function setOptimizeSymbols(value){
 }
 
 async function post(url, payload){
-  const hint = 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56';
   let apiKey = currentApiKey();
-  let r = await fetch(url,{
+  const r = await fetch(url,{
     method:'POST',
     headers: requestHeaders(apiKey),
     body:JSON.stringify(payload)
   });
-  if (r.status === 401 && apiKey !== hint) {
-    apiKey = hint;
-    apiKeyInput.value = hint;
-    writeStorage(STORAGE_KEYS.apiKey, hint);
-    r = await fetch(url,{
-      method:'POST',
-      headers: requestHeaders(apiKey),
-      body:JSON.stringify(payload)
-    });
-  }
   let j = null;
   try {
     j = await r.json();
@@ -672,10 +599,6 @@ bindPersist(apiKeyInput, STORAGE_KEYS.apiKey);
 bindPersist(bSymbolInput, STORAGE_KEYS.backtestSymbol);
 bindPersist(pSymbolInput, STORAGE_KEYS.paperSymbol);
 bindPersist(oSymbolsInput, STORAGE_KEYS.optimizeSymbols);
-const hintKey = 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56';
-if (apiKeyInput.value.trim() !== hintKey) {
-  useHintKey();
-}
 </script>
 <div class='corner-tag'>THIS WEBSITE IS MADE BY SAYANTAN MAJI</div>
 </body>

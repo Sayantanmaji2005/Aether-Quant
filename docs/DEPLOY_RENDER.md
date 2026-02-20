@@ -37,6 +37,13 @@ Example:
 - `https://<your-render-url>/healthz`
 - `https://<your-render-url>/readyz`
 
+Then test an API route from the UI:
+
+1. Open `https://<your-render-url>/`.
+2. In Render dashboard, open service `aether-quant-web` -> `Environment`.
+3. Copy `AETHERQ_API_KEY` (or `AETHERQ_ADMIN_API_KEY` for admin routes).
+4. Paste that key into the UI API key field and run a workflow.
+
 ## Notes
 
 - `AETHERQ_API_KEY` and `AETHERQ_ADMIN_API_KEY` are auto-generated from `render.yaml`.

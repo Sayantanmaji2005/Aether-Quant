@@ -323,7 +323,8 @@ pre{
 <div class='hint-box' id='hint_key_box'>
 <div>Hint key (protected):</div>
 <div class='hint-row'>
-<input id='hint_key_value' type='password' readonly value='F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56'/>
+<input id='hint_key_value' type='password' readonly
+value='F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56'/>
 <button type='button' class='btn-soft' onclick='toggleHintKey()' id='hint_toggle_btn'>Show</button>
 <button type='button' class='btn-soft' onclick='copyHintKey()'>Copy</button>
 </div>

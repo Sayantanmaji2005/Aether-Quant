@@ -69,6 +69,57 @@ Role rules:
 If `AETHERQ_DATABASE_URL` is set (`postgresql://...` or `sqlite:///...`), run outputs are persisted and include `run_id`.
 Rate limiting applies to `/api/*` requests based on `AETHERQ_RATE_LIMIT_PER_MINUTE`.
 
+## Client API Key Handoff
+
+API keys are generated and managed by the deployment owner, not by the web UI.
+
+Recommended process:
+
+1. Generate strong keys (trader and admin).
+2. Store keys only in deployment secrets (`AETHERQ_API_KEY`, `AETHERQ_ADMIN_API_KEY`).
+3. Share only the trader key with client users via a secure channel.
+4. Keep admin key restricted to operators.
+5. Rotate keys on a schedule and immediately after any suspected leak.
+
+PowerShell key generation example:
+
+```powershell
+$b = New-Object byte[] 32; [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); ([System.BitConverter]::ToString($b)).Replace('-', '')
+```
+
+Scripted key generation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/generate_keys.ps1
+```
+
+Options:
+
+```powershell
+# JSON output for CI/pipelines
+powershell -ExecutionPolicy Bypass -File scripts/generate_keys.ps1 -Json
+
+# 64-byte keys
+powershell -ExecutionPolicy Bypass -File scripts/generate_keys.ps1 -Bytes 64
+
+# Trader-only key (no admin key)
+powershell -ExecutionPolicy Bypass -File scripts/generate_keys.ps1 -NoAdmin
+```
+
+Write `.env.production` directly:
+
+```powershell
+# Generate keys and write a full .env.production file
+powershell -ExecutionPolicy Bypass -File scripts/write_env_production.ps1 -GenerateKeys -Force
+
+# Or provide your own keys
+powershell -ExecutionPolicy Bypass -File scripts/write_env_production.ps1 -TraderKey "<trader_key>" -AdminKey "<admin_key>" -Force
+```
+
+Header formats accepted by API routes:
+- `X-API-Key: <key>`
+- `Authorization: Bearer <key>`
+
 ## Docker
 
 ```powershell

@@ -123,6 +123,30 @@ def test_api_endpoints_accept_valid_api_key(monkeypatch: pytest.MonkeyPatch) -> 
     assert response.status_code == 200
 
 
+def test_api_endpoints_accept_bearer_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
+    monkeypatch.setattr(web_app, "Settings", _SecuredSettings)
+    client = TestClient(web_app.create_app())
+    response = client.post(
+        "/api/backtest",
+        json={"symbol": "SPY"},
+        headers={"Authorization": "Bearer secret-key"},
+    )
+    assert response.status_code == 200
+
+
+def test_api_endpoints_accept_quoted_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
+    monkeypatch.setattr(web_app, "Settings", _SecuredSettings)
+    client = TestClient(web_app.create_app())
+    response = client.post(
+        "/api/backtest",
+        json={"symbol": "SPY"},
+        headers={"X-API-Key": '"secret-key"'},
+    )
+    assert response.status_code == 200
+
+
 def test_admin_endpoint_forbids_trader_role(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(web_app, "Settings", _SecuredSettings)
     client = TestClient(web_app.create_app())

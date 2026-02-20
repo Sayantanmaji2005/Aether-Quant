@@ -70,121 +70,291 @@ PAGE = """
 <title>AetherQuant Web</title>
 <style>
 :root{
-  --bg-a:#eef6ff;
-  --bg-b:#fff7ee;
-  --ink:#112033;
+  --bg-a:#e8f2ff;
+  --bg-b:#ffe7d2;
+  --ink:#10213a;
+  --muted:#4d5f7b;
   --card:#ffffffd9;
-  --card-border:#c8d5e6;
-  --primary:#0065d1;
-  --primary-hover:#004ea3;
-  --accent:#08a691;
-  --out-bg:#09162c;
+  --card-border:#a8bad8;
+  --run-a:#0f75d8;
+  --run-b:#10b1a2;
+  --run-shadow:#0d7fc74d;
+  --soft-bg:#edf4ff;
+  --soft-border:#b8c9e2;
+  --soft-ink:#1f3658;
+  --out-bg:#06142b;
   --out-ink:#dbeafe;
 }
 *{box-sizing:border-box}
 body{
-  font-family:"Trebuchet MS","Segoe UI",Verdana,sans-serif;
-  max-width:1080px;
+  font-family:"Avenir Next","Segoe UI","Trebuchet MS",Verdana,sans-serif;
+  max-width:1100px;
   margin:0 auto;
-  padding:18px 14px 28px;
+  padding:20px 14px 32px;
   color:var(--ink);
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
   background:
-    radial-gradient(1200px 500px at -10% -15%, #cce4ff 0%, transparent 65%),
-    radial-gradient(900px 450px at 110% -20%, #ffe5c7 0%, transparent 60%),
-    linear-gradient(135deg, var(--bg-a), var(--bg-b));
+    radial-gradient(1400px 700px at -20% -20%, #b4d6ff 0%, transparent 58%),
+    radial-gradient(900px 560px at 120% -10%, #ffd8b2 0%, transparent 60%),
+    linear-gradient(120deg, var(--bg-a), var(--bg-b));
+}
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  pointer-events:none;
+  z-index:-1;
+}
+body::before{
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      -20deg,
+      transparent 0 22px,
+      #ffffff26 22px 24px
+    );
+  opacity:.32;
+}
+body::after{
+  width:460px;
+  height:460px;
+  right:-160px;
+  bottom:-150px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #3fa5ff66, transparent 70%);
+  filter:blur(14px);
+  animation:floatBlob 8s ease-in-out infinite alternate;
 }
 h1{
-  margin:4px 0 10px;
-  letter-spacing:0.3px;
+  margin:0;
+  font-size:46px;
+  line-height:1.06;
+  letter-spacing:0.2px;
+  text-wrap:balance;
+}
+h3{
+  margin:0 0 12px;
+  font-size:30px;
+  line-height:1.12;
+  letter-spacing:0.2px;
+}
+.hero{
+  margin-bottom:12px;
+  padding:18px 18px 14px;
+  border-radius:20px;
+  border:1px solid #b4c5de;
+  background:
+    linear-gradient(160deg, #ffffffd4, #eaf4ffd9 62%, #fff4e6d4);
+  box-shadow:
+    0 20px 40px -32px #12213c,
+    inset 0 1px 0 #ffffffcc;
+  animation:rise .45s ease both;
 }
 .subtitle{
-  margin:0 0 12px;
-  opacity:0.75;
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:24px;
+  line-height:1.35;
 }
 .card{
   background:var(--card);
   border:1px solid var(--card-border);
-  border-radius:14px;
-  padding:14px;
-  margin:12px 0;
-  box-shadow:0 12px 24px -18px #183259;
+  border-radius:20px;
+  padding:16px;
+  margin:14px 0;
+  backdrop-filter:blur(6px);
+  box-shadow:
+    0 24px 50px -38px #183259,
+    inset 0 1px 0 #ffffffd4;
   animation:rise .48s ease both;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  inset:-40% auto auto -20%;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:radial-gradient(circle, #7dc0ff3f, transparent 70%);
+  pointer-events:none;
 }
 .card:nth-of-type(2){animation-delay:.05s}
 .card:nth-of-type(3){animation-delay:.1s}
 .card:nth-of-type(4){animation-delay:.15s}
 .card:nth-of-type(5){animation-delay:.2s}
 .row{display:flex;gap:8px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{
+  padding:6px 10px;
+  border:1px solid var(--soft-border);
+  border-radius:999px;
+  background:linear-gradient(180deg, #f6faff, #ebf3ff);
+  color:var(--soft-ink);
+  font-size:12px;
+  cursor:pointer;
+  transition:transform .14s ease, background .14s ease, border-color .14s ease;
+}
+.chip:hover{
+  background:#dfebff;
+  border-color:#8fb2db;
+  transform:translateY(-1px);
+}
 input,select,button{
-  padding:9px 10px;
-  border:1px solid #b8c7da;
-  border-radius:8px;
+  padding:10px 12px;
+  border:1px solid #b4c3da;
+  border-radius:10px;
+  font-size:15px;
 }
 input,select{
-  background:#ffffff;
-  color:var(--ink);
+  background:#ffffffd9;
+  color:#112444;
 }
 input:focus,select:focus{
   outline:none;
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px #0065d126;
+  border-color:#1f7bd9;
+  box-shadow:0 0 0 3px #1578dd2e;
 }
 button{
-  background:linear-gradient(135deg, var(--primary), var(--accent));
+  cursor:pointer;
+  transition:transform .16s ease, filter .16s ease, box-shadow .16s ease;
+}
+.btn-run{
+  background:linear-gradient(135deg, var(--run-a), var(--run-b));
   color:#fff;
   border:none;
-  cursor:pointer;
-  transition:transform .14s ease, filter .14s ease;
+  box-shadow:0 10px 16px -12px var(--run-shadow);
 }
-button:hover{filter:brightness(1.02); transform:translateY(-1px)}
+.btn-soft{
+  background:var(--soft-bg);
+  color:var(--soft-ink);
+  border:1px solid var(--soft-border);
+}
+button:hover{
+  filter:brightness(1.03);
+  transform:translateY(-1px);
+}
 button:active{transform:translateY(0)}
 pre{
   background:linear-gradient(180deg, var(--out-bg), #050f1f);
   color:var(--out-ink);
-  padding:12px;
-  border-radius:10px;
+  padding:14px;
+  border-radius:14px;
   overflow:auto;
   border:1px solid #1f3355;
   box-shadow:inset 0 0 30px #0f2141;
+  min-height:98px;
+  animation:fadeIn .5s ease both;
 }
 .status{
   display:inline-block;
-  font-size:12px;
-  padding:2px 8px;
+  font-size:13px;
+  padding:4px 10px;
   border-radius:999px;
-  background:#d9f7f0;
-  color:#086657;
-  margin-left:8px;
+  background:#d6fbf4;
+  color:#0a6b5d;
+  margin-left:10px;
+  vertical-align:middle;
+}
+.card .subtitle{
+  font-size:16px;
+  margin:8px 0 0;
+}
+@media (max-width: 760px){
+  h1{font-size:38px}
+  h3{font-size:28px}
+  .subtitle{font-size:21px}
+  .hero{padding:16px 14px 12px}
+  .card{padding:14px}
 }
 @keyframes rise{
   from{opacity:0; transform:translateY(8px)}
   to{opacity:1; transform:translateY(0)}
 }
+@keyframes fadeIn{
+  from{opacity:.6}
+  to{opacity:1}
+}
+@keyframes floatBlob{
+  from{transform:translateY(0)}
+  to{transform:translateY(-24px)}
+}
 </style>
 </head>
 <body>
+<div class='hero'>
 <h1>AetherQuant Dashboard</h1>
 <p class='subtitle'>Quant workflows for backtesting, paper/live execution, and optimization.
 <span class='status'>Live UI</span></p>
+</div>
 <div class='card'>
 <h3>API Security</h3>
 <div class='row'>
 <input id='api_key' placeholder='X-API-Key (optional)' style='min-width:260px'/>
+<button type='button' class='btn-soft' onclick='clearApiKey()'>Clear Key</button>
 </div>
+<p class='subtitle'>Use the trader/admin API key shared by your deployment owner.</p>
 </div>
 <div class='card'>
 <h3>Backtest</h3>
 <div class='row'>
-<input id='b_symbol' value='SPY' placeholder='Symbol'/>
+<input id='b_symbol' value='SPY' placeholder='Symbol' list='symbol_list'/>
+<select id='b_symbol_pick' onchange='pickSymbol("b_symbol", this.value)'>
+<option value=''>Popular ETFs</option>
+<option value='SPY'>SPY</option>
+<option value='QQQ'>QQQ</option>
+<option value='DIA'>DIA</option>
+<option value='IWM'>IWM</option>
+<option value='VTI'>VTI</option>
+<option value='VOO'>VOO</option>
+<option value='IVV'>IVV</option>
+<option value='TLT'>TLT</option>
+<option value='IEF'>IEF</option>
+<option value='GLD'>GLD</option>
+<option value='SLV'>SLV</option>
+<option value='USO'>USO</option>
+<option value='XLF'>XLF</option>
+<option value='XLK'>XLK</option>
+<option value='XLE'>XLE</option>
+</select>
 <input id='b_period' value='1y' placeholder='Period'/>
 <input id='b_interval' value='1d' placeholder='Interval'/>
-<button onclick='runBacktest()'>Run</button>
+<button class='btn-run' onclick='runBacktest()'>Run</button>
+<button type='button' class='btn-soft' onclick='resetBacktestDefaults()'>Use Defaults</button>
+</div>
+<div class='chips'>
+<button type='button' class='chip' onclick='setBacktestSymbol("SPY")'>SPY</button>
+<button type='button' class='chip' onclick='setBacktestSymbol("QQQ")'>QQQ</button>
+<button type='button' class='chip' onclick='setBacktestSymbol("DIA")'>DIA</button>
+<button type='button' class='chip' onclick='setBacktestSymbol("IWM")'>IWM</button>
+<button type='button' class='chip' onclick='setBacktestSymbol("GLD")'>GLD</button>
 </div>
 </div>
 <div class='card'>
 <h3>Paper Trade</h3>
 <div class='row'>
-<input id='p_symbol' value='SPY'/>
+<input id='p_symbol' value='SPY' list='symbol_list'/>
+<select id='p_symbol_pick' onchange='pickSymbol("p_symbol", this.value)'>
+<option value=''>Popular ETFs</option>
+<option value='SPY'>SPY</option>
+<option value='QQQ'>QQQ</option>
+<option value='DIA'>DIA</option>
+<option value='IWM'>IWM</option>
+<option value='VTI'>VTI</option>
+<option value='VOO'>VOO</option>
+<option value='IVV'>IVV</option>
+<option value='TLT'>TLT</option>
+<option value='IEF'>IEF</option>
+<option value='GLD'>GLD</option>
+<option value='SLV'>SLV</option>
+<option value='USO'>USO</option>
+<option value='XLF'>XLF</option>
+<option value='XLK'>XLK</option>
+<option value='XLE'>XLE</option>
+</select>
 <input id='p_period' value='6mo'/>
 <input id='p_interval' value='1d'/>
 <select id='p_broker'>
@@ -198,27 +368,159 @@ pre{
 <input id='p_endpoint' placeholder='Broker Endpoint' style='min-width:220px'/>
 <input id='p_key_id' placeholder='Broker Key ID (alpaca)'/>
 <input id='p_token' placeholder='Broker Token/Secret' style='min-width:220px'/>
-<button onclick='runPaper()'>Run</button>
+<button class='btn-run' onclick='runPaper()'>Run</button>
+<button type='button' class='btn-soft' onclick='resetPaperDefaults()'>Use Defaults</button>
+</div>
+<div class='chips'>
+<button type='button' class='chip' onclick='setPaperSymbol("SPY")'>SPY</button>
+<button type='button' class='chip' onclick='setPaperSymbol("QQQ")'>QQQ</button>
+<button type='button' class='chip' onclick='setPaperSymbol("DIA")'>DIA</button>
+<button type='button' class='chip' onclick='setPaperSymbol("IWM")'>IWM</button>
+<button type='button' class='chip' onclick='setPaperSymbol("TLT")'>TLT</button>
 </div>
 </div>
 <div class='card'>
 <h3>Optimize</h3>
 <div class='row'>
 <input id='o_symbols' value='SPY,QQQ,TLT' style='min-width:220px'/>
+<select id='o_add_symbol' onchange='addOptimizeSymbol(this.value)'>
+<option value=''>Add Symbol</option>
+<option value='SPY'>SPY</option>
+<option value='QQQ'>QQQ</option>
+<option value='DIA'>DIA</option>
+<option value='IWM'>IWM</option>
+<option value='VTI'>VTI</option>
+<option value='VOO'>VOO</option>
+<option value='IVV'>IVV</option>
+<option value='TLT'>TLT</option>
+<option value='IEF'>IEF</option>
+<option value='GLD'>GLD</option>
+<option value='SLV'>SLV</option>
+<option value='USO'>USO</option>
+<option value='XLF'>XLF</option>
+<option value='XLK'>XLK</option>
+<option value='XLE'>XLE</option>
+</select>
 <select id='o_method'>
 <option value='risk-parity'>risk-parity</option>
 <option value='mean-variance'>mean-variance</option>
 </select>
-<button onclick='runOptimize()'>Run</button>
+<button class='btn-run' onclick='runOptimize()'>Run</button>
+<button type='button' class='btn-soft' onclick='clearOptimizeSymbols()'>Clear</button>
+<button type='button' class='btn-soft' onclick='resetOptimizeDefaults()'>Use Defaults</button>
+</div>
+<div class='chips'>
+<button type='button' class='chip' onclick='setOptimizeSymbols("SPY,QQQ,TLT")'>SPY,QQQ,TLT</button>
+<button type='button' class='chip' onclick='setOptimizeSymbols("SPY,IEF,GLD")'>SPY,IEF,GLD</button>
+<button type='button' class='chip' onclick='setOptimizeSymbols("QQQ,XLK,XLF")'>QQQ,XLK,XLF</button>
+<button type='button' class='chip' onclick='setOptimizeSymbols("VOO,IWM,TLT")'>VOO,IWM,TLT</button>
 </div>
 </div>
+<datalist id='symbol_list'>
+<option value='SPY'></option>
+<option value='QQQ'></option>
+<option value='DIA'></option>
+<option value='IWM'></option>
+<option value='VTI'></option>
+<option value='VOO'></option>
+<option value='IVV'></option>
+<option value='TLT'></option>
+<option value='IEF'></option>
+<option value='GLD'></option>
+<option value='SLV'></option>
+<option value='USO'></option>
+<option value='XLF'></option>
+<option value='XLK'></option>
+<option value='XLE'></option>
+</datalist>
 <pre id='out'>Ready.</pre>
 <script>
+const apiKeyInput = document.getElementById('api_key');
+const bSymbolInput = document.getElementById('b_symbol');
+const bPeriodInput = document.getElementById('b_period');
+const bIntervalInput = document.getElementById('b_interval');
+const pSymbolInput = document.getElementById('p_symbol');
+const pPeriodInput = document.getElementById('p_period');
+const pIntervalInput = document.getElementById('p_interval');
+const pBrokerSelect = document.getElementById('p_broker');
+const pProviderSelect = document.getElementById('p_provider');
+const pEndpointInput = document.getElementById('p_endpoint');
+const pKeyIdInput = document.getElementById('p_key_id');
+const pTokenInput = document.getElementById('p_token');
+const oSymbolsInput = document.getElementById('o_symbols');
+const oAddSymbolSelect = document.getElementById('o_add_symbol');
+const oMethodSelect = document.getElementById('o_method');
+const STORAGE_KEYS = {
+  apiKey: 'aetherq.api_key',
+  backtestSymbol: 'aetherq.backtest.symbol',
+  paperSymbol: 'aetherq.paper.symbol',
+  optimizeSymbols: 'aetherq.optimize.symbols'
+};
+
+function readStorage(key){
+  try { return localStorage.getItem(key); } catch (_) { return null; }
+}
+function writeStorage(key, value){
+  try { localStorage.setItem(key, value); } catch (_) {}
+}
+function removeStorage(key){
+  try { localStorage.removeItem(key); } catch (_) {}
+}
+function bindPersist(inputEl, key){
+  const saved = readStorage(key);
+  if (saved) inputEl.value = saved;
+  inputEl.addEventListener('input', () => writeStorage(key, inputEl.value.trim()));
+}
+function clearApiKey(){
+  apiKeyInput.value = '';
+  removeStorage(STORAGE_KEYS.apiKey);
+}
+function resetBacktestDefaults(){
+  bSymbolInput.value = 'SPY';
+  bPeriodInput.value = '1y';
+  bIntervalInput.value = '1d';
+  writeStorage(STORAGE_KEYS.backtestSymbol, bSymbolInput.value);
+}
+function setBacktestSymbol(symbol){
+  bSymbolInput.value = symbol;
+  writeStorage(STORAGE_KEYS.backtestSymbol, symbol);
+}
+function resetPaperDefaults(){
+  pSymbolInput.value = 'SPY';
+  pPeriodInput.value = '6mo';
+  pIntervalInput.value = '1d';
+  pBrokerSelect.value = 'paper';
+  pProviderSelect.value = 'generic-rest';
+  pEndpointInput.value = '';
+  pKeyIdInput.value = '';
+  pTokenInput.value = '';
+  writeStorage(STORAGE_KEYS.paperSymbol, pSymbolInput.value);
+}
+function setPaperSymbol(symbol){
+  pSymbolInput.value = symbol;
+  writeStorage(STORAGE_KEYS.paperSymbol, symbol);
+}
+function clearOptimizeSymbols(){
+  oSymbolsInput.value = '';
+  removeStorage(STORAGE_KEYS.optimizeSymbols);
+}
+function resetOptimizeDefaults(){
+  oSymbolsInput.value = 'SPY,QQQ,TLT';
+  oMethodSelect.value = 'risk-parity';
+  oAddSymbolSelect.value = '';
+  writeStorage(STORAGE_KEYS.optimizeSymbols, oSymbolsInput.value);
+}
+function setOptimizeSymbols(value){
+  oSymbolsInput.value = value;
+  writeStorage(STORAGE_KEYS.optimizeSymbols, value);
+}
+
 async function post(url, payload){
-  const apiKey = api_key.value.trim();
+  const apiKey = apiKeyInput.value.trim();
   const headers = {'Content-Type':'application/json'};
   if (apiKey) {
     headers['X-API-Key'] = apiKey;
+    headers['Authorization'] = `Bearer ${apiKey}`;
   }
   const r = await fetch(url,{
     method:'POST',
@@ -234,27 +536,57 @@ async function post(url, payload){
   );
 }
 function runBacktest(){
-  post('/api/backtest',{symbol:b_symbol.value,period:b_period.value,interval:b_interval.value});
+  post('/api/backtest',{symbol:bSymbolInput.value,period:bPeriodInput.value,interval:bIntervalInput.value});
+}
+function pickSymbol(targetId, value){
+  if (!value) return;
+  const el = document.getElementById(targetId);
+  if (el) el.value = value;
+}
+function addOptimizeSymbol(value){
+  if (!value) return;
+  const parts = oSymbolsInput.value.split(',').map(x => x.trim().toUpperCase()).filter(Boolean);
+  if (!parts.includes(value)) parts.push(value);
+  oSymbolsInput.value = parts.join(',');
+  oAddSymbolSelect.value = '';
 }
 function runPaper(){
   post('/api/papertrade',{
-    symbol:p_symbol.value,
-    period:p_period.value,
-    interval:p_interval.value,
-    broker:p_broker.value,
-    broker_provider:p_provider.value || null,
-    broker_endpoint:p_endpoint.value.trim() || null,
-    broker_key_id:p_key_id.value.trim() || null,
-    broker_token:p_token.value.trim() || null
+    symbol:pSymbolInput.value,
+    period:pPeriodInput.value,
+    interval:pIntervalInput.value,
+    broker:pBrokerSelect.value,
+    broker_provider:pProviderSelect.value || null,
+    broker_endpoint:pEndpointInput.value.trim() || null,
+    broker_key_id:pKeyIdInput.value.trim() || null,
+    broker_token:pTokenInput.value.trim() || null
   });
 }
 function runOptimize(){
-  post('/api/optimize',{symbols:o_symbols.value.split(',').map(x=>x.trim()).filter(Boolean),method:o_method.value});
+  post('/api/optimize',{symbols:oSymbolsInput.value.split(',').map(x=>x.trim()).filter(Boolean),method:oMethodSelect.value});
 }
+bindPersist(apiKeyInput, STORAGE_KEYS.apiKey);
+bindPersist(bSymbolInput, STORAGE_KEYS.backtestSymbol);
+bindPersist(pSymbolInput, STORAGE_KEYS.paperSymbol);
+bindPersist(oSymbolsInput, STORAGE_KEYS.optimizeSymbols);
 </script>
 </body>
 </html>
 """
+
+
+def _extract_api_key(request: Request) -> str | None:
+    provided_key = request.headers.get("X-API-Key")
+    if not provided_key:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header[:7].lower() == "bearer ":
+            provided_key = auth_header[7:]
+    if not provided_key:
+        return None
+    normalized = provided_key.strip()
+    if len(normalized) >= 2 and normalized[0] == normalized[-1] and normalized[0] in {"'", '"'}:
+        normalized = normalized[1:-1].strip()
+    return normalized or None
 
 
 def _require_api_key(request: Request, settings: Settings) -> None:
@@ -264,7 +596,7 @@ def _require_api_key(request: Request, settings: Settings) -> None:
 def _request_role(request: Request, settings: Settings) -> str:
     if not settings.api_key and not settings.admin_api_key:
         return "anonymous"
-    provided_key = request.headers.get("X-API-Key")
+    provided_key = _extract_api_key(request)
     if not provided_key:
         return ""
     if settings.admin_api_key and hmac.compare_digest(provided_key, settings.admin_api_key):
@@ -306,7 +638,7 @@ def create_app() -> FastAPI:
         settings = Settings()
         storage = _get_storage(settings)
         actor_role = _request_role(request, settings) or "unauthenticated"
-        principal = request.headers.get("X-API-Key") or (
+        principal = _extract_api_key(request) or (
             request.client.host if request.client else "unknown"
         )
         request_id = request.headers.get("X-Request-ID", uuid4().hex)

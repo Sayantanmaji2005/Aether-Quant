@@ -1,0 +1,15 @@
+﻿__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.git/
+.gitignore
+.venv/
+venv/
+.env
+.env.*
+data/
+notebooks/

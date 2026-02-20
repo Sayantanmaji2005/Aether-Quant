@@ -1,0 +1,11 @@
+﻿version: "3.9"
+
+services:
+  aetherquant:
+    build: .
+    image: aetherquant:latest
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    command: ["backtest", "--symbol", "SPY", "--period", "1y", "--interval", "1d"]

@@ -285,12 +285,31 @@ pre{
   max-width:100%;
   font-family:Consolas,"Courier New",monospace;
 }
+.corner-tag{
+  position:fixed;
+  right:12px;
+  bottom:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid #9cb2d2;
+  background:#ffffffdb;
+  color:#1f3658;
+  font-size:11px;
+  letter-spacing:.3px;
+  z-index:30;
+  box-shadow:0 8px 20px -16px #0f223f;
+}
 @media (max-width: 760px){
   h1{font-size:38px}
   h3{font-size:28px}
   .subtitle{font-size:21px}
   .hero{padding:16px 14px 12px}
   .card{padding:14px}
+  .corner-tag{
+    right:8px;
+    bottom:8px;
+    font-size:10px;
+  }
 }
 @keyframes rise{
   from{opacity:0; transform:translateY(8px)}
@@ -632,6 +651,7 @@ bindPersist(bSymbolInput, STORAGE_KEYS.backtestSymbol);
 bindPersist(pSymbolInput, STORAGE_KEYS.paperSymbol);
 bindPersist(oSymbolsInput, STORAGE_KEYS.optimizeSymbols);
 </script>
+<div class='corner-tag'>THIS WEBSITE IS MADE BY SAYANTAN MAJI</div>
 </body>
 </html>
 """

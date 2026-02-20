@@ -8,6 +8,12 @@ import aetherquant.data.yfinance_provider as yfp
 
 def test_fetch_ohlcv_rejects_empty_download(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(yfp.yf, "download", lambda *args, **kwargs: pd.DataFrame())
+
+    class _Ticker:
+        def history(self, *args, **kwargs) -> pd.DataFrame:
+            return pd.DataFrame()
+
+    monkeypatch.setattr(yfp.yf, "Ticker", lambda *args, **kwargs: _Ticker())
     provider = yfp.YFinanceProvider()
 
     with pytest.raises(ValueError, match="No data returned"):

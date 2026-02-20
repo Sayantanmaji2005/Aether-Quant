@@ -69,24 +69,103 @@ PAGE = """
 <meta name='viewport' content='width=device-width,initial-scale=1'/>
 <title>AetherQuant Web</title>
 <style>
-body{
-  font-family:Segoe UI,Arial,sans-serif;
-  max-width:980px;
-  margin:20px auto;
-  padding:0 12px;
-  background:#f5f7fb;
-  color:#111
+:root{
+  --bg-a:#eef6ff;
+  --bg-b:#fff7ee;
+  --ink:#112033;
+  --card:#ffffffd9;
+  --card-border:#c8d5e6;
+  --primary:#0065d1;
+  --primary-hover:#004ea3;
+  --accent:#08a691;
+  --out-bg:#09162c;
+  --out-ink:#dbeafe;
 }
-.card{background:#fff;border:1px solid #d8dee9;border-radius:10px;padding:14px;margin:12px 0}
+*{box-sizing:border-box}
+body{
+  font-family:"Trebuchet MS","Segoe UI",Verdana,sans-serif;
+  max-width:1080px;
+  margin:0 auto;
+  padding:18px 14px 28px;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 500px at -10% -15%, #cce4ff 0%, transparent 65%),
+    radial-gradient(900px 450px at 110% -20%, #ffe5c7 0%, transparent 60%),
+    linear-gradient(135deg, var(--bg-a), var(--bg-b));
+}
+h1{
+  margin:4px 0 10px;
+  letter-spacing:0.3px;
+}
+.subtitle{
+  margin:0 0 12px;
+  opacity:0.75;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--card-border);
+  border-radius:14px;
+  padding:14px;
+  margin:12px 0;
+  box-shadow:0 12px 24px -18px #183259;
+  animation:rise .48s ease both;
+}
+.card:nth-of-type(2){animation-delay:.05s}
+.card:nth-of-type(3){animation-delay:.1s}
+.card:nth-of-type(4){animation-delay:.15s}
+.card:nth-of-type(5){animation-delay:.2s}
 .row{display:flex;gap:8px;flex-wrap:wrap}
-input,select,button{padding:8px;border:1px solid #c6cfdd;border-radius:6px}
-button{background:#0b57d0;color:#fff;border:none;cursor:pointer}
-pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:8px;overflow:auto}
-h1{margin-bottom:6px}
+input,select,button{
+  padding:9px 10px;
+  border:1px solid #b8c7da;
+  border-radius:8px;
+}
+input,select{
+  background:#ffffff;
+  color:var(--ink);
+}
+input:focus,select:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px #0065d126;
+}
+button{
+  background:linear-gradient(135deg, var(--primary), var(--accent));
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  transition:transform .14s ease, filter .14s ease;
+}
+button:hover{filter:brightness(1.02); transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+pre{
+  background:linear-gradient(180deg, var(--out-bg), #050f1f);
+  color:var(--out-ink);
+  padding:12px;
+  border-radius:10px;
+  overflow:auto;
+  border:1px solid #1f3355;
+  box-shadow:inset 0 0 30px #0f2141;
+}
+.status{
+  display:inline-block;
+  font-size:12px;
+  padding:2px 8px;
+  border-radius:999px;
+  background:#d9f7f0;
+  color:#086657;
+  margin-left:8px;
+}
+@keyframes rise{
+  from{opacity:0; transform:translateY(8px)}
+  to{opacity:1; transform:translateY(0)}
+}
 </style>
 </head>
 <body>
 <h1>AetherQuant Dashboard</h1>
+<p class='subtitle'>Quant workflows for backtesting, paper/live execution, and optimization.
+<span class='status'>Live UI</span></p>
 <div class='card'>
 <h3>API Security</h3>
 <div class='row'>
@@ -147,7 +226,12 @@ async function post(url, payload){
     body:JSON.stringify(payload)
   });
   const j = await r.json();
-  document.getElementById('out').textContent = JSON.stringify(j,null,2);
+  const out = document.getElementById('out');
+  out.textContent = JSON.stringify(j,null,2);
+  out.animate(
+    [{opacity:.7, transform:'translateY(2px)'},{opacity:1, transform:'translateY(0)'}],
+    {duration:220, easing:'ease-out'}
+  );
 }
 function runBacktest(){
   post('/api/backtest',{symbol:b_symbol.value,period:b_period.value,interval:b_interval.value});

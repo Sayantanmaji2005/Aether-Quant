@@ -95,6 +95,7 @@ docker compose up --build
 - `.github/workflows/ci.yml`: CI checks.
 - `.github/workflows/release.yml`: tagged Docker release to GHCR.
 - `docs/CLIENT_HANDOFF.md`: client onboarding and operational runbook.
+- `docs/DEPLOY_RENDER.md`: one-click Render deployment guide.
 - `RELEASE_NOTES.md`: release summary and delivery checklist.
 - `.env.production.example`: production environment template.
 

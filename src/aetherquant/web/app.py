@@ -312,7 +312,7 @@ pre{
 <div class='card'>
 <h3>API Security</h3>
 <div class='row'>
-<input id='api_key' placeholder='X-API-Key (optional)' style='min-width:260px'/>
+<input id='api_key' placeholder='X-API-Key (optional)' value='F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56' style='min-width:260px'/>
 <button type='button' class='btn-soft' onclick='clearApiKey()'>Clear Key</button>
 </div>
 <p class='subtitle'>Use the trader/admin API key shared by your deployment owner.</p>

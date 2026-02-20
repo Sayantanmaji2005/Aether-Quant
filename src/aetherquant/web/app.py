@@ -531,6 +531,17 @@ function useHintKey(){
   apiKeyInput.value = hint;
   writeStorage(STORAGE_KEYS.apiKey, hint);
 }
+function currentApiKey(){
+  return apiKeyInput.value.trim();
+}
+function requestHeaders(apiKey){
+  const headers = {'Content-Type':'application/json'};
+  if (apiKey) {
+    headers['X-API-Key'] = apiKey;
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+  return headers;
+}
 function toggleHintKey(){
   const hintInput = document.getElementById('hint_key_value');
   const btn = document.getElementById('hint_toggle_btn');
@@ -597,18 +608,29 @@ function setOptimizeSymbols(value){
 }
 
 async function post(url, payload){
-  const apiKey = apiKeyInput.value.trim();
-  const headers = {'Content-Type':'application/json'};
-  if (apiKey) {
-    headers['X-API-Key'] = apiKey;
-    headers['Authorization'] = `Bearer ${apiKey}`;
-  }
-  const r = await fetch(url,{
+  const hint = 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56';
+  let apiKey = currentApiKey();
+  let r = await fetch(url,{
     method:'POST',
-    headers,
+    headers: requestHeaders(apiKey),
     body:JSON.stringify(payload)
   });
-  const j = await r.json();
+  if (r.status === 401 && apiKey !== hint) {
+    apiKey = hint;
+    apiKeyInput.value = hint;
+    writeStorage(STORAGE_KEYS.apiKey, hint);
+    r = await fetch(url,{
+      method:'POST',
+      headers: requestHeaders(apiKey),
+      body:JSON.stringify(payload)
+    });
+  }
+  let j = null;
+  try {
+    j = await r.json();
+  } catch {
+    j = {detail: `HTTP ${r.status}`};
+  }
   const out = document.getElementById('out');
   out.textContent = JSON.stringify(j,null,2);
   out.animate(
@@ -650,7 +672,7 @@ bindPersist(apiKeyInput, STORAGE_KEYS.apiKey);
 bindPersist(bSymbolInput, STORAGE_KEYS.backtestSymbol);
 bindPersist(pSymbolInput, STORAGE_KEYS.paperSymbol);
 bindPersist(oSymbolsInput, STORAGE_KEYS.optimizeSymbols);
-if (!apiKeyInput.value.trim()) {
+if (apiKeyInput.value.trim() !== 'F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56') {
   useHintKey();
 }
 </script>

@@ -62,7 +62,7 @@ Operational endpoints:
 - `GET /api/runs` (requires persistence configuration)
 - `GET /api/audit` (requires persistence configuration)
 
-If `AETHERQ_API_KEY` or `AETHERQ_ADMIN_API_KEY` is set, `/api/*` endpoints require `X-API-Key`.
+`/api/*` endpoints require an API key header. Dashboard run actions stay locked until key confirmation.
 Role rules:
 - `AETHERQ_API_KEY`: trader role (backtest/papertrade/optimize)
 - `AETHERQ_ADMIN_API_KEY`: admin role (includes `/api/runs` and `/api/audit`)
@@ -120,6 +120,11 @@ Header formats accepted by API routes:
 - `X-API-Key: <key>`
 - `Authorization: Bearer <key>`
 
+Dashboard key flow:
+1. Generate or paste a key.
+2. Click `Confirm Key`.
+3. Run buttons unlock only after confirmation succeeds.
+
 ## Docker
 
 ```powershell
@@ -167,7 +172,7 @@ Prefix: `AETHERQ_`
 - `AETHERQ_INITIAL_CASH` (default `100000`)
 - `AETHERQ_COMMISSION_BPS` (default `1.0`)
 - `AETHERQ_SLIPPAGE_BPS` (default `0.5`)
-- `AETHERQ_API_KEY` (default unset; when set, protects `/api/*`)
+- `AETHERQ_API_KEY` (trader key for `/api/*`; strongly recommended in production)
 - `AETHERQ_ADMIN_API_KEY` (default unset; admin access for operational endpoints)
 - `AETHERQ_DATABASE_URL` (default unset; enables run/order/metric persistence)
 - `AETHERQ_RATE_LIMIT_PER_MINUTE` (default `120`)

@@ -136,8 +136,9 @@ Endpoints:
 
 1. Open dashboard URL over HTTPS.
 2. In `API Security`, paste trader key into `X-API-Key` field.
-3. Run `Backtest` with default values to validate access.
-4. Confirm a JSON success payload appears (not `{"detail":"Unauthorized"}`).
+3. Tap `Confirm Key` and wait for confirmation.
+4. Run `Backtest` with default values to validate access.
+5. Confirm a JSON success payload appears (not `{"detail":"Unauthorized"}`).
 
 ### Mobile Troubleshooting
 
@@ -149,7 +150,7 @@ Endpoints:
 ## Client Acceptance Checklist
 
 - Health checks return `200`.
-- API key enforcement works when `AETHERQ_API_KEY` is set.
+- API key confirmation flow works from dashboard (`Confirm Key` unlocks run actions).
 - Client can successfully call one strategy endpoint using `X-API-Key`.
 - Client receives `401 Unauthorized` when key is missing or invalid.
 - Rate limiting returns `429` when threshold is exceeded.
@@ -161,7 +162,7 @@ Endpoints:
 ## Operational Notes
 
 - Responses include `X-Request-ID` and `X-Process-Time-Ms` for traceability.
-- `/api/*` routes are unauthenticated only when `AETHERQ_API_KEY` is unset.
+- `/api/*` routes require API key header input; use deployment keys in production.
 - API auth accepts either `X-API-Key` or `Authorization: Bearer <key>`.
 - For production, use PostgreSQL instead of SQLite.
 

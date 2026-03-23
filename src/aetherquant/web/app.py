@@ -314,7 +314,7 @@ pre{
 <div class='row'>
 <input
 id='api_key'
-placeholder='X-API-Key (optional)'
+placeholder='X-API-Key (required)'
 value=''
 style='min-width:260px'/>
 <button type='button' class='btn-soft' onclick='autoGenerateApiKey()'>Generate Key</button>

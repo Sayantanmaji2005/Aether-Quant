@@ -6,6 +6,8 @@ from fastapi.testclient import TestClient
 
 import aetherquant.web.app as web_app
 
+_DEV_HEADERS = {"X-API-Key": "dev-local-key"}
+
 
 def _sample_frame(offset: int = 0) -> pd.DataFrame:
     index = pd.date_range("2026-01-01", periods=8, freq="D") + pd.Timedelta(days=offset)
@@ -83,8 +85,8 @@ def test_rate_limit_blocks_excess_api_requests(monkeypatch) -> None:
     monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
     monkeypatch.setenv("AETHERQ_RATE_LIMIT_PER_MINUTE", "1")
     client = TestClient(web_app.create_app())
-    first = client.post("/api/backtest", json={"symbol": "SPY"})
-    second = client.post("/api/backtest", json={"symbol": "SPY"})
+    first = client.post("/api/backtest", json={"symbol": "SPY"}, headers=_DEV_HEADERS)
+    second = client.post("/api/backtest", json={"symbol": "SPY"}, headers=_DEV_HEADERS)
     assert first.status_code == 200
     assert second.status_code == 429
     assert "Retry-After" in second.headers
@@ -93,7 +95,7 @@ def test_rate_limit_blocks_excess_api_requests(monkeypatch) -> None:
 def test_backtest_endpoint_returns_metrics(monkeypatch) -> None:
     monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
     client = TestClient(web_app.create_app())
-    response = client.post("/api/backtest", json={"symbol": "SPY"})
+    response = client.post("/api/backtest", json={"symbol": "SPY"}, headers=_DEV_HEADERS)
     body = response.json()
     assert response.status_code == 200
     assert body["symbol"] == "SPY"
@@ -157,9 +159,19 @@ def test_admin_endpoint_forbids_trader_role(monkeypatch: pytest.MonkeyPatch) -> 
 
 def test_runs_endpoint_requires_persistence_configuration() -> None:
     client = TestClient(web_app.create_app())
-    response = client.get("/api/runs")
+    response = client.get("/api/runs", headers=_DEV_HEADERS)
     assert response.status_code == 400
     assert response.json()["detail"] == "Persistence is not configured."
+
+
+def test_api_endpoints_require_api_key_even_when_not_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
+    client = TestClient(web_app.create_app())
+    response = client.post("/api/backtest", json={"symbol": "SPY"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Unauthorized"
 
 
 def test_backtest_persists_run_and_runs_endpoint_lists_it(monkeypatch, tmp_path) -> None:
@@ -207,7 +219,7 @@ def test_audit_endpoint_lists_events(monkeypatch, tmp_path) -> None:
 def test_papertrade_endpoint_returns_equity(monkeypatch) -> None:
     monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
     client = TestClient(web_app.create_app())
-    response = client.post("/api/papertrade", json={"symbol": "SPY"})
+    response = client.post("/api/papertrade", json={"symbol": "SPY"}, headers=_DEV_HEADERS)
     body = response.json()
     assert response.status_code == 200
     assert body["broker"] == "paper"
@@ -227,6 +239,7 @@ def test_papertrade_live_mode_works_with_explicit_credentials(monkeypatch) -> No
             "broker_endpoint": "https://broker.example",
             "broker_token": "secret-token",
         },
+        headers=_DEV_HEADERS,
     )
     body = response.json()
     assert response.status_code == 200
@@ -245,6 +258,7 @@ def test_papertrade_live_alpaca_requires_key_id(monkeypatch) -> None:
             "broker_endpoint": "https://paper-api.alpaca.markets",
             "broker_token": "secret-token",
         },
+        headers=_DEV_HEADERS,
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "broker_key_id is required for alpaca provider."
@@ -256,6 +270,7 @@ def test_optimize_endpoint_returns_weights(monkeypatch) -> None:
     response = client.post(
         "/api/optimize",
         json={"symbols": ["SPY", "QQQ", "TLT"], "method": "mean-variance"},
+        headers=_DEV_HEADERS,
     )
     body = response.json()
     assert response.status_code == 200
@@ -266,7 +281,7 @@ def test_optimize_endpoint_returns_weights(monkeypatch) -> None:
 def test_optimize_endpoint_rejects_too_few_symbols(monkeypatch) -> None:
     monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
     client = TestClient(web_app.create_app())
-    response = client.post("/api/optimize", json={"symbols": ["SPY"]})
+    response = client.post("/api/optimize", json={"symbols": ["SPY"]}, headers=_DEV_HEADERS)
     assert response.status_code == 400
     assert response.json()["detail"] == "Provide at least two symbols."
 
@@ -274,7 +289,11 @@ def test_optimize_endpoint_rejects_too_few_symbols(monkeypatch) -> None:
 def test_optimize_endpoint_rejects_duplicate_symbols(monkeypatch) -> None:
     monkeypatch.setattr(web_app, "YFinanceProvider", _Provider)
     client = TestClient(web_app.create_app())
-    response = client.post("/api/optimize", json={"symbols": ["SPY", "QQQ", "SPY"]})
+    response = client.post(
+        "/api/optimize",
+        json={"symbols": ["SPY", "QQQ", "SPY"]},
+        headers=_DEV_HEADERS,
+    )
     assert response.status_code == 400
     assert response.json()["detail"] == "symbols must be unique."
 
@@ -282,12 +301,16 @@ def test_optimize_endpoint_rejects_duplicate_symbols(monkeypatch) -> None:
 def test_optimize_endpoint_rejects_non_overlapping_data(monkeypatch) -> None:
     monkeypatch.setattr(web_app, "YFinanceProvider", _SplitProvider)
     client = TestClient(web_app.create_app())
-    response = client.post("/api/optimize", json={"symbols": ["SPY", "QQQ"]})
+    response = client.post("/api/optimize", json={"symbols": ["SPY", "QQQ"]}, headers=_DEV_HEADERS)
     assert response.status_code == 400
     assert response.json()["detail"] == "No overlapping data to optimize."
 
 
 def test_papertrade_request_validation() -> None:
     client = TestClient(web_app.create_app())
-    response = client.post("/api/papertrade", json={"symbol": "SPY", "slippage_bps": -1})
+    response = client.post(
+        "/api/papertrade",
+        json={"symbol": "SPY", "slippage_bps": -1},
+        headers=_DEV_HEADERS,
+    )
     assert response.status_code == 422

@@ -318,9 +318,11 @@ placeholder='X-API-Key (optional)'
 value=''
 style='min-width:260px'/>
 <button type='button' class='btn-soft' onclick='autoGenerateApiKey()'>Generate Key</button>
+<button type='button' class='btn-soft' onclick='confirmApiKey()'>Confirm Key</button>
 <button type='button' class='btn-soft' onclick='clearApiKey()'>Clear Key</button>
+<span id='api_key_status' class='status'>Key not confirmed</span>
 </div>
-<p class='subtitle'>Use a deployment key, or generate a local random key for quick testing.</p>
+<p class='subtitle'>Generate or paste key, confirm it, then strategy actions unlock.</p>
 </div>
 <div class='card'>
 <h3>Backtest</h3>
@@ -474,6 +476,9 @@ const pTokenInput = document.getElementById('p_token');
 const oSymbolsInput = document.getElementById('o_symbols');
 const oAddSymbolSelect = document.getElementById('o_add_symbol');
 const oMethodSelect = document.getElementById('o_method');
+const apiKeyStatus = document.getElementById('api_key_status');
+const runButtons = document.querySelectorAll('.btn-run');
+let apiKeyConfirmed = false;
 const STORAGE_KEYS = {
   apiKey: 'aetherq.api_key',
   backtestSymbol: 'aetherq.backtest.symbol',
@@ -498,6 +503,9 @@ function bindPersist(inputEl, key){
 function clearApiKey(){
   apiKeyInput.value = '';
   removeStorage(STORAGE_KEYS.apiKey);
+  apiKeyConfirmed = false;
+  setRunEnabled(false);
+  setAuthStatus('Key not confirmed', false);
 }
 function generateHexKey(bytes = 32){
   const raw = new Uint8Array(bytes);
@@ -512,6 +520,43 @@ function autoGenerateApiKey(){
   const key = generateHexKey(32);
   apiKeyInput.value = key;
   writeStorage(STORAGE_KEYS.apiKey, key);
+  apiKeyConfirmed = false;
+  setRunEnabled(false);
+  setAuthStatus('Key generated. Confirm key to continue.', false);
+}
+function setRunEnabled(enabled){
+  runButtons.forEach((btn) => {
+    btn.disabled = !enabled;
+    btn.style.opacity = enabled ? '1' : '0.55';
+    btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+  });
+}
+function setAuthStatus(message, isOk){
+  apiKeyStatus.textContent = message;
+  apiKeyStatus.style.background = isOk ? '#d6fbf4' : '#ffe9dd';
+  apiKeyStatus.style.color = isOk ? '#0a6b5d' : '#9b3b19';
+}
+async function confirmApiKey(){
+  const apiKey = currentApiKey();
+  if (!apiKey) {
+    apiKeyConfirmed = false;
+    setRunEnabled(false);
+    setAuthStatus('Key missing', false);
+    return;
+  }
+  const response = await fetch('/api/keycheck', {
+    method: 'GET',
+    headers: requestHeaders(apiKey)
+  });
+  if (response.ok) {
+    apiKeyConfirmed = true;
+    setRunEnabled(true);
+    setAuthStatus('Key confirmed', true);
+    return;
+  }
+  apiKeyConfirmed = false;
+  setRunEnabled(false);
+  setAuthStatus('Invalid key', false);
 }
 function currentApiKey(){
   return apiKeyInput.value.trim();
@@ -565,6 +610,11 @@ function setOptimizeSymbols(value){
 }
 
 async function post(url, payload){
+  if (!apiKeyConfirmed) {
+    const out = document.getElementById('out');
+    out.textContent = JSON.stringify({detail:'Confirm API key before running actions.'},null,2);
+    return;
+  }
   let apiKey = currentApiKey();
   const r = await fetch(url,{
     method:'POST',
@@ -618,6 +668,11 @@ bindPersist(apiKeyInput, STORAGE_KEYS.apiKey);
 bindPersist(bSymbolInput, STORAGE_KEYS.backtestSymbol);
 bindPersist(pSymbolInput, STORAGE_KEYS.paperSymbol);
 bindPersist(oSymbolsInput, STORAGE_KEYS.optimizeSymbols);
+setRunEnabled(false);
+setAuthStatus('Key not confirmed', false);
+if (currentApiKey()) {
+  void confirmApiKey();
+}
 </script>
 <div class='corner-tag'>THIS WEBSITE IS MADE BY SAYANTAN MAJI</div>
 </body>
@@ -644,9 +699,9 @@ def _require_api_key(request: Request, settings: Settings) -> None:
 
 
 def _request_role(request: Request, settings: Settings) -> str:
-    if not settings.api_key and not settings.admin_api_key:
-        return "anonymous"
     provided_key = _extract_api_key(request)
+    if not settings.api_key and not settings.admin_api_key:
+        return "anonymous" if provided_key else ""
     if not provided_key:
         return ""
     if settings.admin_api_key and hmac.compare_digest(provided_key, settings.admin_api_key):
@@ -739,6 +794,15 @@ def create_app() -> FastAPI:
     @app.get("/readyz")
     def readyz() -> dict[str, str]:
         return {"status": "ready"}
+
+    @app.get("/api/keycheck")
+    def keycheck(request: Request) -> dict[str, str]:
+        settings = Settings()
+        role = _request_role(request, settings)
+        if not role:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        normalized_role = "trader" if role == "anonymous" else role
+        return {"status": "ok", "role": normalized_role}
 
     @app.post("/api/backtest")
     def backtest(req: BacktestRequest, request: Request) -> dict[str, float | int | str]:

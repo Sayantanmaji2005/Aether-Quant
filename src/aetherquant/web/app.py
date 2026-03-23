@@ -725,9 +725,13 @@ def _require_role(request: Request, settings: Settings, allowed_roles: set[str])
 def _get_storage(settings: Settings) -> RunStorage | None:
     if not settings.database_url:
         return None
-    storage = RunStorage(settings.database_url)
-    storage.init_schema()
-    return storage
+    try:
+        storage = RunStorage(settings.database_url)
+        storage.init_schema()
+        return storage
+    except Exception:
+        logger.exception("Persistence is configured but unavailable; continuing without storage.")
+        return None
 
 
 def create_app() -> FastAPI:

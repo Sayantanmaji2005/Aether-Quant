@@ -315,11 +315,12 @@ pre{
 <input
 id='api_key'
 placeholder='X-API-Key (optional)'
-value='F15E3458EC2562D0545E14F435AF2BC58BE0FD23EF3730D8FAAC4722A44E6B56'
+value=''
 style='min-width:260px'/>
+<button type='button' class='btn-soft' onclick='autoGenerateApiKey()'>Generate Key</button>
 <button type='button' class='btn-soft' onclick='clearApiKey()'>Clear Key</button>
 </div>
-<p class='subtitle'>Use the trader/admin API key shared by your deployment owner.</p>
+<p class='subtitle'>Use a deployment key, or generate a local random key for quick testing.</p>
 </div>
 <div class='card'>
 <h3>Backtest</h3>
@@ -497,6 +498,20 @@ function bindPersist(inputEl, key){
 function clearApiKey(){
   apiKeyInput.value = '';
   removeStorage(STORAGE_KEYS.apiKey);
+}
+function generateHexKey(bytes = 32){
+  const raw = new Uint8Array(bytes);
+  window.crypto.getRandomValues(raw);
+  return Array.from(raw, (b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+function autoGenerateApiKey(){
+  if (!(window.crypto && window.crypto.getRandomValues)) {
+    alert('Secure random generator is not available in this browser.');
+    return;
+  }
+  const key = generateHexKey(32);
+  apiKeyInput.value = key;
+  writeStorage(STORAGE_KEYS.apiKey, key);
 }
 function currentApiKey(){
   return apiKeyInput.value.trim();

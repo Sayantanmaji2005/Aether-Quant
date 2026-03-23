@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -49,7 +50,7 @@ class RunStorage:
             raise ValueError("database_url must start with sqlite:/// or postgresql://")
 
     def init_schema(self) -> None:
-        with self._connect() as conn:
+        with closing(self._connect()) as conn:
             self._run_schema_migrations(conn)
             conn.commit()
 
@@ -74,7 +75,7 @@ class RunStorage:
         final_equity = payload.get("final_equity")
         orders_placed = len(orders) if orders is not None else payload.get("orders_placed")
 
-        with self._connect() as conn:
+        with closing(self._connect()) as conn:
             self._run_schema_migrations(conn)
             cur = conn.cursor()
             self._execute(
@@ -145,7 +146,7 @@ class RunStorage:
     def list_runs(self, limit: int = 20) -> list[StoredRun]:
         if limit <= 0:
             raise ValueError("limit must be greater than zero")
-        with self._connect() as conn:
+        with closing(self._connect()) as conn:
             self._run_schema_migrations(conn)
             cur = conn.cursor()
             self._execute(
@@ -181,7 +182,7 @@ class RunStorage:
         actor_role: str,
     ) -> int:
         created_at = datetime.now(UTC).isoformat()
-        with self._connect() as conn:
+        with closing(self._connect()) as conn:
             self._run_schema_migrations(conn)
             cur = conn.cursor()
             self._execute(
@@ -206,7 +207,7 @@ class RunStorage:
     def list_audit_events(self, limit: int = 100) -> list[AuditEvent]:
         if limit <= 0:
             raise ValueError("limit must be greater than zero")
-        with self._connect() as conn:
+        with closing(self._connect()) as conn:
             self._run_schema_migrations(conn)
             cur = conn.cursor()
             self._execute(
